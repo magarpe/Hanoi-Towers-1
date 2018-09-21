@@ -16,6 +16,10 @@ states(:,:,10) = [zeros(2, 2), [2; 1]];
 states(:,:,11) = [zeros(2, 1), [zeros; 2], [zeros; 1]];
 states(:,:,12) = [[zeros; 2], zeros(2, 1), [zeros; 1]];
 
+utility = zeros(1,12);
+utility_new = utility;
+pi = zeros(12,2);
+
 actions = [[1, 2]; ...
     [1, 3]; ...
     [2, 3]; ...
@@ -23,15 +27,40 @@ actions = [[1, 2]; ...
     [3, 1]; ...
     [3, 2]];
 
-states_t = states(:,:,1);
-best_actions = [];
-
-% current_st = states(:,:,1);
-
-for i = posible_actions(states_t(:,:,end)).'
-    [end_st, error_st] = end_state(states_t(:,:,end), i.')
+e = 0.01;
+delta = 1;
+while delta >= e
+    delta = 0;
+    best_action = zeros(12,2);
+    for st = (1:12)
+        maximums = [];
+        action = [];
+        for a = posible_actions(states(:,:,st)).'
+            [end_st, error_st] = end_state(states(:,:,st), a.');
+            i = which_state(end_st, states);
+            i_error = which_state(error_st, states);
+            reward = get_reward(end_st, states);
+            reward_error = get_reward(error_st, states);
+            r = (0.9*reward + 0.1*reward_error);
+            maximum = r + gamma*(0.9* utility(i) + 0.1 *utility(i_error));
+            maximums = [maximums, maximum];
+            action = [action, a];
+        end
+        [new, i_act] = max(maximums);
+        best_action(st,:) = action(:,i_act).';
+        
+        if abs(new-utility(st)) > delta
+            delta = abs(new-utility(st));
+        end
+        
+        utility_new(st) = new;
+    end
+    utility = utility_new
+    best_action
 end
-    
+
+pi = best_action
+
 
 function [pos_act] = posible_actions(current_st)
 init_st = find(current_st(2,:));
@@ -76,13 +105,26 @@ if current_st(1,final) == 0
     end
 end
 end
-    
 
-% (action(1,:),
-% end
+function [reward] = get_reward(state, states)
+% global states;
+if isequal(state,states(:,:,9))
+    reward = 100;
+elseif isequal(state, states(:,:,2))|| isequal(state, states(:,:,6)) || isequal(state, states(:,:,10))
+    reward = -10;
+else
+    reward = -1;
+end
+end
 
+function [index] = which_state(state, states)
+for i = (1:12)
+    if isequal(state,states(:,:,i))
+        index = i;
+    end
+end
+end
 % value iteration
-
 
 % each state, action
 % mean + gamma *(sume(probability*reward))
