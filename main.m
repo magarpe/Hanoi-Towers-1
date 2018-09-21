@@ -1,4 +1,7 @@
 clear;
+clc;
+
+gamma = 0.9;
 
 states = [[1; 2], zeros(2,2)];
 states(:,:,2) = [[2; 1], zeros(2, 2)];
@@ -13,25 +16,54 @@ states(:,:,10) = [zeros(2, 2), [2; 1]];
 states(:,:,11) = [zeros(2, 1), [zeros; 2], [zeros; 1]];
 states(:,:,12) = [[zeros; 2], zeros(2, 1), [zeros; 1]];
 
-% actions = [[1, 2]; ...
-%     [1, 3]; ...
-%     [2, 3]; ...
-%     [2, 1]; ...
-%     [3, 1]; ...
-%     [3, 2]];
+actions = [[1, 2]; ...
+    [1, 3]; ...
+    [2, 3]; ...
+    [2, 1]; ...
+    [3, 1]; ...
+    [3, 2]];
 
+states_t = states(:,:,1);
+best_actions = [];
+
+current_st = states(:,:,1);
 
 function [pos_act] = posible_actions(current_st)
-% pos_actions = [];
-
-% current_st = states(:, :, 3);
 init_st = find(current_st(2,:));
 end_st = find(current_st(1,:)==0);
 comb = combvec(init_st, end_st);
 pos_act = comb(:,comb(1,:)~=comb(2,:)).';
 end
 
-function [end_st] = end_state(current_st, action)
-
-
+function [end_st, error_st] = end_state(current_st, action)
+end_st = current_st;
+init = action(:,1);
+if current_st(1,init) ~= 0
+    disc = end_st(1,init);
+    end_st(1,init) = 0;
+else
+    disc = end_st(2,init);
+    end_st(2,init) = 0;
 end
+
+final = action(:,2);
+if current_st(1,final) == 0
+    if current_st(2,final) == 0
+        end_st(2,final) = disc;
+    else
+        end_st(1,final) = disc;
+    end
+end
+end
+    
+    
+% (action(1,:),
+% end
+
+% value iteration
+
+
+% each state, action
+% mean + gamma *(sume(probability*reward))
+% chose action which gives the bigest
+
