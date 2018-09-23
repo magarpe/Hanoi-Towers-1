@@ -25,11 +25,12 @@ actions = [[1, 2]; ...
     [2, 3]; ...
     [2, 1]; ...
     [3, 1]; ...
-    [3, 2]];
+    [3, 2]; ...
+    [0, 0]];
 
-e = 0.01;
+e = 1;
 delta = 1;
-while delta >= e
+% while delta >= e
     delta = 0;
     best_action = zeros(12,2);
     for st = (1:12)
@@ -48,60 +49,70 @@ while delta >= e
         end
         [new, i_act] = max(maximums);
         best_action(st,:) = action(:,i_act).';
-        
+
         if abs(new-utility(st)) > delta
             delta = abs(new-utility(st));
         end
-        
+
         utility_new(st) = new;
     end
     utility = utility_new
     best_action
-end
+% end
 
-pi = best_action
+pi = best_action;
 
 
 function [pos_act] = posible_actions(current_st)
-init_st = find(current_st(2,:));
-end_st = find(current_st(1,:)==0);
-comb = combvec(init_st, end_st);
-pos_act = comb(:,comb(1,:)~=comb(2,:)).';
+if isequal(current_st, [zeros(2, 2), [1; 2]])
+    pos_act = [0,0];
+else
+    init_st = find(current_st(2,:));
+    end_st = find(current_st(1,:)==0);
+    comb = combvec(init_st, end_st);
+    pos_act = comb(:,comb(1,:)~=comb(2,:)).';
+end
 end
 
 function [end_st, error_st] = end_state(current_st, action)
-end_st = current_st;
-init = action(:,1);
-if current_st(1,init) ~= 0
-    disc = end_st(1,init);
-    end_st(1,init) = 0;
+if isequal(action, [0,0])
+    end_st = current_st;
+    error_st = current_st;
 else
-    disc = end_st(2,init);
-    end_st(2,init) = 0;
-end
-
-error_st = end_st;
-final = action(:,2);
-if final~=1 && init ~=1
-    final_error = 1;
-elseif final~=2 && init ~=2
-    final_error = 2;
-elseif final~=3 && init ~=3
-    final_error = 3;
-end
-if current_st(1,final_error) == 0
-    if current_st(2,final_error) == 0
-        error_st(2,final_error) = disc;
+    
+    end_st = current_st;
+    init = action(:,1);
+    if current_st(1,init) ~= 0
+        disc = end_st(1,init);
+        end_st(1,init) = 0;
     else
-        error_st(1,final_error) = disc;
+        disc = end_st(2,init);
+        end_st(2,init) = 0;
     end
-end
-
-if current_st(1,final) == 0
-    if current_st(2,final) == 0
-        end_st(2,final) = disc;
-    else
-        end_st(1,final) = disc;
+    
+    error_st = end_st;
+    final = action(:,2);
+    if final~=1 && init ~=1
+        final_error = 1;
+    elseif final~=2 && init ~=2
+        final_error = 2;
+    elseif final~=3 && init ~=3
+        final_error = 3;
+    end
+    if current_st(1,final_error) == 0
+        if current_st(2,final_error) == 0
+            error_st(2,final_error) = disc;
+        else
+            error_st(1,final_error) = disc;
+        end
+    end
+    
+    if current_st(1,final) == 0
+        if current_st(2,final) == 0
+            end_st(2,final) = disc;
+        else
+            end_st(1,final) = disc;
+        end
     end
 end
 end
@@ -124,9 +135,3 @@ for i = (1:12)
     end
 end
 end
-% value iteration
-
-% each state, action
-% mean + gamma *(sume(probability*reward))
-% chose action which gives the bigest
-
