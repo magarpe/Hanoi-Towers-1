@@ -5,16 +5,18 @@ gamma = 0.9;
 
 states = [[1; 2], zeros(2,2)];
 states(:,:,2) = [[2; 1], zeros(2, 2)];
-states(:,:,3) = [[zeros;1], [zeros; 2], zeros(2, 1)];
-states(:,:,4) = [[zeros;1], zeros(2, 1), [zeros; 2]];
+states(:,:,3) = [[zeros;2], [zeros; 1], zeros(2, 1)];
+states(:,:,4) = [[zeros;2], zeros(2, 1), [zeros; 1]];
+
 states(:,:,5) = [zeros(2, 1), [1; 2], zeros(2, 1)];
 states(:,:,6) = [zeros(2, 1), [2; 1], zeros(2, 1)];
-states(:,:,7) = [[zeros; 2], [zeros; 1], zeros(2, 1)];
-states(:,:,8) = [zeros(2, 1), [zeros; 1], [zeros; 2]];
+states(:,:,7) = [[zeros; 1], [zeros; 2], zeros(2, 1)];
+states(:,:,8) = [zeros(2, 1), [zeros; 2], [zeros; 1]];
+
 states(:,:,9) = [zeros(2, 2), [1; 2]];
 states(:,:,10) = [zeros(2, 2), [2; 1]];
-states(:,:,11) = [zeros(2, 1), [zeros; 2], [zeros; 1]];
-states(:,:,12) = [[zeros; 2], zeros(2, 1), [zeros; 1]];
+states(:,:,11) = [zeros(2, 1), [zeros; 1], [zeros; 2]];
+states(:,:,12) = [[zeros; 1], zeros(2, 1), [zeros; 2]];
 
 utility = zeros(1,12);
 utility_new = utility;
@@ -28,9 +30,11 @@ actions = [[1, 2]; ...
     [3, 2]; ...
     [0, 0]];
 
+% % % VALUE ITERATION % % %
+
 e = 1;
 delta = 1;
-% while delta >= e
+while delta >= e
     delta = 0;
     best_action = zeros(12,2);
     for st = (1:12)
@@ -58,7 +62,7 @@ delta = 1;
     end
     utility = utility_new
     best_action
-% end
+end
 
 pi = best_action;
 
