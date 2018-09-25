@@ -27,6 +27,45 @@ actions = [[1, 2]; ...
     [0, 0]];
 
 
+% % % % VALUE ITERATION % % %
+% 
+% policy = zeros(1,12);
+% utility_new = policy;
+% e = 1;
+% delta = 1;
+% while delta >= e
+%     delta = 0;
+%     best_action = zeros(12,2);
+%     for st = (1:12)
+%         maximums = [];
+%         action = [];
+%         for a = posible_actions(states(:,:,st)).'
+%             [end_st, error_st] = end_state(states(:,:,st), a.');
+%             i = which_state(end_st, states);
+%             i_error = which_state(error_st, states);
+%             reward = get_reward(end_st, states);
+%             reward_error = get_reward(error_st, states);
+%             r = (0.9*reward + 0.1*reward_error);
+%             maximum = r + gamma*(0.9* utility(i) + 0.1 *utility(i_error));
+%             maximums = [maximums, maximum];
+%             action = [action, a];
+%         end
+%         [new, i_act] = max(maximums);
+%         best_action(st,:) = action(:,i_act).';
+% 
+%         if abs(new-utility(st)) > delta
+%             delta = abs(new-utility(st));
+%         end
+% 
+%         utility_new(st) = new;
+%     end
+%     utility = utility_new
+%     best_action
+% end
+% 
+% pi = best_action;
+
+
 % % % POLICY ITERATION % % %
 policy = zeros(12,2);
 utility = zeros(12,1);
@@ -38,15 +77,15 @@ A(9,9)=1;
 B = zeros(12,1);
 
 % initialization 
-% for st = (1:12)
-%     acts = posible_actions(states(:,:,st));
-%     policy(st,:) = acts(1,:);
-% end
-policy = [1 2; 1 2; 1 3; 3 1; 2 1; 2 3; 2 1; 3 1; 0 0; 3 1; 2 3; 1 3]
+for st = (1:12)
+    acts = posible_actions(states(:,:,st));
+    policy(st,:) = acts(1,:);
+end
+% policy = [1 2; 1 2; 1 3; 3 1; 2 1; 2 3; 2 1; 3 1; 0 0; 3 1; 2 3; 1 3]
 while change ~= 0
     utility = zeros(12,1);
     utility_new = zeros(12,1);
-    utility_non_policy = nan(12,3);
+    utility_non_policy = zeros(12,3);
     change = 0;
     A = zeros(12,12);
     A(9,9)=1;
@@ -64,9 +103,9 @@ while change ~= 0
             
             r = (0.9*reward + 0.1*reward_error);
             
-            A(st, st) = -1;
-            A(st, i) = 0.81;
-            A(st, i_error) = 0.09;
+            A(st, st) = 1;
+            A(st, i) = -0.81;
+            A(st, i_error) = -0.09;
             B(st) = r;
         end
     end
@@ -94,26 +133,16 @@ while change ~= 0
     end
         
 %     update policy
-    [M, index] = max(utility_non_policy,[],2);
+    [M, index] = max(abs(utility_non_policy),[],2);
     for st=1:12
         if M(st) > utility_new(st)
             change = 1;
-            policy(st,:) = [allactions(st, index(st),1) allactions(st, index(st),2)] 
+            policy(st,:) = [allactions(st, index(st),1) allactions(st, index(st),2)];
         end
     end
-    
+    policy
 end
-% r = (0.9*reward + 0.1*reward_error);
-% 
-% utility (state, policy) = r + gamma*(0.9*utility_goood +0.1* utility_error)
-% 
-% utility_new = linsolve(A,B)
-% 
-% utility (state, action_not_policy) = r + gamma*(0.9*utility_goood +0.1* utility_error)
-% if max(utility(action_not_policy)) > utility_new(policy)
-%     utility_new(policy) = max(utility(action_not_policy))
-% end
-% 
+
 
 function [pos_act] = posible_actions(current_st)
 if isequal(current_st, [zeros(2, 2), [1; 2]])
@@ -190,40 +219,3 @@ end
 
 
 
-% 
-% policy = zeros(1,12);
-% utility_new = policy;
-% % % % VALUE ITERATION % % %
-% e = 1;
-% delta = 1;
-% while delta >= e
-%     delta = 0;
-%     best_action = zeros(12,2);
-%     for st = (1:12)
-%         maximums = [];
-%         action = [];
-%         for a = posible_actions(states(:,:,st)).'
-%             [end_st, error_st] = end_state(states(:,:,st), a.');
-%             i = which_state(end_st, states);
-%             i_error = which_state(error_st, states);
-%             reward = get_reward(end_st, states);
-%             reward_error = get_reward(error_st, states);
-%             r = (0.9*reward + 0.1*reward_error);
-%             maximum = r + gamma*(0.9* utility(i) + 0.1 *utility(i_error));
-%             maximums = [maximums, maximum];
-%             action = [action, a];
-%         end
-%         [new, i_act] = max(maximums);
-%         best_action(st,:) = action(:,i_act).';
-% 
-%         if abs(new-utility(st)) > delta
-%             delta = abs(new-utility(st));
-%         end
-% 
-%         utility_new(st) = new;
-%     end
-%     utility = utility_new
-%     best_action
-% end
-% 
-% pi = best_action;
