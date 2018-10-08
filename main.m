@@ -30,27 +30,34 @@ actions = [[1, 2]; ...
 
 % initialization
 Q = zeros(12, 7);   % quality(state, action)
-Q_old = ones(12,7);
+Q_old = ones(12,7)*(-2);
 lamda = ones(12, 7);
 
-% while Q - Q_old
+max(max(Q - Q_old))
+i = 0
+while abs(max(max(Q - Q_old))) > 0.01
+% while isequal(Q,Q_old) ~= 1
+    max(max(Q - Q_old))
+    i = i+1
+    Q_old = Q;
     s = states(:,:,1);
     si = 1;
     pi = zeros(12,2);
     while isequal(s, states(:,:,9)) == 0
-        s
+        s;
         acts = posible_actions(s);
-        acts = acts(randperm(size(acts,1)),:)
+        acts = acts(randperm(size(acts,1)),:);
         Qs = acts(:,1).';
         for act = acts.'
             act = act.';
             index = which_act(act, actions);
             Qs(index) = Q(si, index);
         end
+        ai = index;
         
         [maxQ, index] = max(Qs);
-        ai = which_act(acts(index,:), actions);
-        pi(si,:) = actions(ai,:)
+%         ai = which_act(acts(index,:), actions);
+        pi(si,:) = actions(ai,:);
         
         [end_s, error_s] = end_state(s, pi(si,:));
         prob = rand(1);
@@ -59,7 +66,7 @@ lamda = ones(12, 7);
         else
             next_s = end_s;
         end
-        next_s
+        next_s;
         r = get_reward(next_s, states);
         
 
@@ -79,8 +86,10 @@ lamda = ones(12, 7);
         s = next_s;
         si = si_new;
     end
-    Q_old = Q;
-% end
+    pi
+    Q
+    Q_old;
+end
 
 
 function [pos_act] = posible_actions(current_st)
